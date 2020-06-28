@@ -16,11 +16,20 @@
 package org.apache.ibatis.parsing;
 
 /**
+ * 通用 token 解析器
+ * 输入：select * from table where id = ${id}
+ * 结果：select * from table where id = ?
  * @author Clinton Begin
  */
 public class GenericTokenParser {
 
+  /**
+   * 开始的 Token 字符串
+   */
   private final String openToken;
+  /**
+   * 结束的 Token 字符串
+   */
   private final String closeToken;
   private final TokenHandler handler;
 
@@ -41,7 +50,9 @@ public class GenericTokenParser {
     }
     char[] src = text.toCharArray();
     int offset = 0;
+    // 结果
     final StringBuilder builder = new StringBuilder();
+    // 匹配到的 openToken 和 closeToken 之间的表达式。eg：${id} -> id
     StringBuilder expression = null;
     while (start > -1) {
       if (start > 0 && src[start - 1] == '\\') {
