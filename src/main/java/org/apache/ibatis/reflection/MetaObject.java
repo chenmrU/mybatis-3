@@ -28,11 +28,18 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
+ * 对 ObjectWrapper 操作的增强
  * @author Clinton Begin
  */
 public class MetaObject {
 
+  /**
+   * 原始 Object 对象
+   */
   private final Object originalObject;
+  /**
+   * 封装过的 Object
+   */
   private final ObjectWrapper objectWrapper;
   private final ObjectFactory objectFactory;
   private final ObjectWrapperFactory objectWrapperFactory;
@@ -44,6 +51,7 @@ public class MetaObject {
     this.objectWrapperFactory = objectWrapperFactory;
     this.reflectorFactory = reflectorFactory;
 
+    // 创建对应的 ObjectWrapper
     if (object instanceof ObjectWrapper) {
       this.objectWrapper = (ObjectWrapper) object;
     } else if (objectWrapperFactory.hasWrapperFor(object)) {
@@ -109,6 +117,11 @@ public class MetaObject {
     return objectWrapper.hasGetter(name);
   }
 
+  /**
+   * 返回指定属性的值
+   * @param name
+   * @return
+   */
   public Object getValue(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -141,6 +154,11 @@ public class MetaObject {
     }
   }
 
+  /**
+   * 创建指定属性的 MetaObject 对象
+   * @param name
+   * @return
+   */
   public MetaObject metaObjectForProperty(String name) {
     Object value = getValue(name);
     return MetaObject.forObject(value, objectFactory, objectWrapperFactory, reflectorFactory);

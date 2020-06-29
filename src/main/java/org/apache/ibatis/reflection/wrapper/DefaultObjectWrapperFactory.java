@@ -19,6 +19,7 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.ReflectionException;
 
 /**
+ * （基本不用到，所以默认实现是空的）
  * @author Clinton Begin
  */
 public class DefaultObjectWrapperFactory implements ObjectWrapperFactory {
