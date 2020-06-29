@@ -1,1 +1,5 @@
-# 学习mybatis源码使用
+* parsing
+* reflection
+* exceptions
+* datasource
+* transaction
