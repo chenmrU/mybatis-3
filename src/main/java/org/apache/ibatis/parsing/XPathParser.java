@@ -40,16 +40,39 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
+ * 对 XPath 进行封装，用来解析 mybatis-config.xml 文件 和 mapper.xml 文件
+ * XPath 的使用参考：https://www.yiibai.com/java_xml/java_xpath_parse_document.html
  * @author Clinton Begin
  */
 public class XPathParser {
 
+  /**
+   * xml 解析后的 Doc
+   */
   private final Document document;
+  /**
+   * 在解析 xml 前是否需要校验，一般都需要
+   */
   private boolean validation;
+  /**
+   * xml 实体解析器
+   */
   private EntityResolver entityResolver;
+  /**
+   * 变量对象
+   */
   private Properties variables;
+  /**
+   * xpath
+   */
   private XPath xpath;
 
+  /**
+   * 构造器，所有的构造器都是
+   * 1. 先调用 commonConstructor(), 设置相关信息，创建 Xpath 对象
+   * 2. 调用 createDocument(), 解析 xml ， 创建 Document 对象
+   * @param xml
+   */
   public XPathParser(String xml) {
     commonConstructor(false, null, null);
     this.document = createDocument(new InputSource(new StringReader(xml)));
@@ -134,12 +157,18 @@ public class XPathParser {
     this.variables = variables;
   }
 
+  /**
+   * evalXXX 等方法 解析元素，都是通过 evaluate(String expression, Object root, QName returnType) 方法实现
+   * @param expression
+   * @return
+   */
   public String evalString(String expression) {
     return evalString(document, expression);
   }
 
   public String evalString(Object root, String expression) {
     String result = (String) evaluate(expression, root, XPathConstants.STRING);
+    // 基于 variables 替换动态值
     result = PropertyParser.parse(result, variables);
     return result;
   }
@@ -192,6 +221,11 @@ public class XPathParser {
     return (Double) evaluate(expression, root, XPathConstants.NUMBER);
   }
 
+  /**
+   * evalNode , 解析 节点
+   * @param expression
+   * @return
+   */
   public List<XNode> evalNodes(String expression) {
     return evalNodes(document, expression);
   }
@@ -210,13 +244,22 @@ public class XPathParser {
   }
 
   public XNode evalNode(Object root, String expression) {
+    // 获取 Node 对象
     Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
     if (node == null) {
       return null;
     }
+    // 封装成 XNode
     return new XNode(this, node, variables);
   }
 
+  /**
+   * 解析元素
+   * @param expression 表达式
+   * @param root 元素节点
+   * @param returnType 返回值类型 XPathConstants
+   * @return
+   */
   private Object evaluate(String expression, Object root, QName returnType) {
     try {
       return xpath.evaluate(expression, root, returnType);
@@ -225,6 +268,11 @@ public class XPathParser {
     }
   }
 
+  /**
+   * 解析 xml 成为 Doc 对象
+   * @param inputSource
+   * @return
+   */
   private Document createDocument(InputSource inputSource) {
     // important: this must only be called AFTER common constructor
     try {
