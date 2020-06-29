@@ -22,9 +22,21 @@ import java.util.Iterator;
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+  /**
+   * 当前字符串
+   */
   private String name;
+  /**
+   * 索引的name
+   */
   private final String indexedName;
+  /**
+   * 编号
+   */
   private String index;
+  /**
+   * 剩余字符串
+   */
   private final String children;
 
   public PropertyTokenizer(String fullname) {

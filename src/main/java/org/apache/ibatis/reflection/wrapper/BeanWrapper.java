@@ -27,35 +27,61 @@ import org.apache.ibatis.reflection.invoker.Invoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 普通对象 的 ObjectWrapper 实现类
  * @author Clinton Begin
  */
 public class BeanWrapper extends BaseWrapper {
 
+  /**
+   * 普通对象
+   */
   private final Object object;
+  /**
+   * 类元数据
+   */
   private final MetaClass metaClass;
 
   public BeanWrapper(MetaObject metaObject, Object object) {
     super(metaObject);
     this.object = object;
+    // 获取类元信息
     this.metaClass = MetaClass.forClass(object.getClass(), metaObject.getReflectorFactory());
   }
 
+  /**
+   * 获取指定属性的值
+   * @param prop
+   * @return
+   */
   @Override
   public Object get(PropertyTokenizer prop) {
+    // 获取集合类型的属性的指定位置的值
     if (prop.getIndex() != null) {
+      // 获取集合类型的属性
       Object collection = resolveCollection(prop, object);
+      // 获取指定位置的值
       return getCollectionValue(prop, collection);
     } else {
+      // 获取属性的值
       return getBeanProperty(prop, object);
     }
   }
 
+  /**
+   * 设置指定属性的值
+   * @param prop
+   * @param value
+   */
   @Override
   public void set(PropertyTokenizer prop, Object value) {
+    // 设置结合类型属性指定位置的值
     if (prop.getIndex() != null) {
+      // 获得集合类型的属性
       Object collection = resolveCollection(prop, object);
+      // 设置指定位置的值
       setCollectionValue(prop, collection, value);
     } else {
+      // 设置属性的值
       setBeanProperty(prop, object, value);
     }
   }
@@ -75,17 +101,28 @@ public class BeanWrapper extends BaseWrapper {
     return metaClass.getSetterNames();
   }
 
+  /**
+   * 获得指定属性 getter 方法的返回值类型
+   * @param name
+   * @return
+   */
   @Override
   public Class<?> getSetterType(String name) {
+    // 对name进行分词
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    // 有子表达式
     if (prop.hasNext()) {
+      // 创建 MetaObject 对象
       MetaObject metaValue = metaObject.metaObjectForProperty(prop.getIndexedName());
+      // 如果 metaObject 为空，则基于 metaClass 获取返回类型
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
         return metaClass.getSetterType(name);
       } else {
+        // 通过 metaObject 获取返回值类型
         return metaValue.getSetterType(prop.getChildren());
       }
     } else {
+      // 基于 metaClass 获取返回类型
       return metaClass.getSetterType(name);
     }
   }
@@ -143,6 +180,13 @@ public class BeanWrapper extends BaseWrapper {
     }
   }
 
+  /**
+   * 创建指定属性的值
+   * @param name
+   * @param prop
+   * @param objectFactory
+   * @return
+   */
   @Override
   public MetaObject instantiatePropertyValue(String name, PropertyTokenizer prop, ObjectFactory objectFactory) {
     MetaObject metaValue;

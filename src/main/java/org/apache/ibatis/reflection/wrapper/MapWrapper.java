@@ -25,10 +25,14 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * Map对象的 ObjectMapper 实现类
  * @author Clinton Begin
  */
 public class MapWrapper extends BaseWrapper {
 
+  /**
+   * object 变成了 Map
+   */
   private final Map<String, Object> map;
 
   public MapWrapper(MetaObject metaObject, Map<String, Object> map) {

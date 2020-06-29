@@ -22,6 +22,7 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 封装对 MetaObject 的调用
  * @author Clinton Begin
  */
 public interface ObjectWrapper {

@@ -23,6 +23,8 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 集合对象的 ObjectMapper 实现类
+ * 仅支持 add、 addAll
  * @author Clinton Begin
  */
 public class CollectionWrapper implements ObjectWrapper {
