@@ -32,6 +32,7 @@ import javax.sql.DataSource;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 非池化的数据源
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -183,8 +184,10 @@ public class UnpooledDataSource implements DataSource {
   }
 
   private Connection doGetConnection(String username, String password) throws SQLException {
+    // 创建props对象
     Properties props = new Properties();
     if (driverProperties != null) {
+      // 设置 driverProperties 到 props 中
       props.putAll(driverProperties);
     }
     if (username != null) {
@@ -197,13 +200,17 @@ public class UnpooledDataSource implements DataSource {
   }
 
   private Connection doGetConnection(Properties properties) throws SQLException {
+    // 初始化 driver
     initializeDriver();
+    // 获得 connection
     Connection connection = DriverManager.getConnection(url, properties);
+    // 配置 connection
     configureConnection(connection);
     return connection;
   }
 
   private synchronized void initializeDriver() throws SQLException {
+    // 判断是否已经加载过该 driver，未加载过，则进行初始化
     if (!registeredDrivers.containsKey(driver)) {
       Class<?> driverType;
       try {
@@ -215,6 +222,7 @@ public class UnpooledDataSource implements DataSource {
         // DriverManager requires the driver to be loaded via the system ClassLoader.
         // http://www.kfu.com/~nsayer/Java/dyn-jdbc.html
         Driver driverInstance = (Driver)driverType.newInstance();
+        // 使用 driverProxy ，主要是为了使用 mybatis 自定义的 Log
         DriverManager.registerDriver(new DriverProxy(driverInstance));
         registeredDrivers.put(driver, driverInstance);
       } catch (Exception e) {
@@ -225,9 +233,11 @@ public class UnpooledDataSource implements DataSource {
 
   private void configureConnection(Connection conn) throws SQLException {
     if (autoCommit != null && autoCommit != conn.getAutoCommit()) {
+      // 设置是否自动提交事务
       conn.setAutoCommit(autoCommit);
     }
     if (defaultTransactionIsolationLevel != null) {
+      // 设置事务隔离级别
       conn.setTransactionIsolation(defaultTransactionIsolationLevel);
     }
   }

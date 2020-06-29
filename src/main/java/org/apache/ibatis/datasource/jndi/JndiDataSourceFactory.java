@@ -27,6 +27,7 @@ import org.apache.ibatis.datasource.DataSourceException;
 import org.apache.ibatis.datasource.DataSourceFactory;
 
 /**
+ * Jndi数据源工厂
  * @author Clinton Begin
  */
 public class JndiDataSourceFactory implements DataSourceFactory {

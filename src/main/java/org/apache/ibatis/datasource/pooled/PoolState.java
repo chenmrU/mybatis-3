@@ -19,21 +19,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 连接池状态，记录活动中的连接，空闲的练级，以及相关数据统计
  * @author Clinton Begin
  */
 public class PoolState {
 
+  /**
+   * 所属的datasource
+   */
   protected PooledDataSource dataSource;
 
+  /**
+   * 空闲连接
+   */
   protected final List<PooledConnection> idleConnections = new ArrayList<PooledConnection>();
+  /**
+   * 活动连接
+   */
   protected final List<PooledConnection> activeConnections = new ArrayList<PooledConnection>();
+  /**
+   * 获取连接的次数
+   */
   protected long requestCount = 0;
+  /**
+   * 获取连接的时间
+   */
   protected long accumulatedRequestTime = 0;
+  /**
+   * 获取到连接非超时 + 超时的占用时间
+   */
   protected long accumulatedCheckoutTime = 0;
+  /**
+   * 获取到连接超时的次数
+   */
   protected long claimedOverdueConnectionCount = 0;
+  /**
+   * 获取到连接超时的占用时长
+   */
   protected long accumulatedCheckoutTimeOfOverdueConnections = 0;
+  /**
+   * 等待连接的次数
+   */
   protected long accumulatedWaitTime = 0;
+  /**
+   * 等待连接的次数
+   */
   protected long hadToWaitCount = 0;
+  /**
+   * 获取到坏连接的次数
+   */
   protected long badConnectionCount = 0;
 
   public PoolState(PooledDataSource dataSource) {

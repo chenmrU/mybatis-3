@@ -24,11 +24,15 @@ import java.sql.SQLException;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
+ * 池化的 connection 对象
  * @author Clinton Begin
  */
 class PooledConnection implements InvocationHandler {
 
   private static final String CLOSE = "close";
+  /**
+   * jdk proxy的接口
+   */
   private static final Class<?>[] IFACES = new Class<?>[] { Connection.class };
 
   private final int hashCode;
@@ -39,6 +43,9 @@ class PooledConnection implements InvocationHandler {
   private long createdTimestamp;
   private long lastUsedTimestamp;
   private int connectionTypeCode;
+  /**
+   * 是否有效
+   */
   private boolean valid;
 
   /*
@@ -233,6 +240,7 @@ class PooledConnection implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     String methodName = method.getName();
     if (CLOSE.hashCode() == methodName.hashCode() && CLOSE.equals(methodName)) {
+      // 如果是调用了 close 方法，则归还该连接，避免该连接被关闭
       dataSource.pushConnection(this);
       return null;
     } else {
@@ -240,6 +248,7 @@ class PooledConnection implements InvocationHandler {
         if (!Object.class.equals(method.getDeclaringClass())) {
           // issue #579 toString() should never fail
           // throw an SQLException instead of a Runtime
+          // 校验是否可用
           checkConnection();
         }
         return method.invoke(realConnection, args);

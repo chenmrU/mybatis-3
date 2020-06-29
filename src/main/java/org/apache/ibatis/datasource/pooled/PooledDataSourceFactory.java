@@ -18,10 +18,14 @@ package org.apache.ibatis.datasource.pooled;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 
 /**
+ * 池化的数据源工厂
  * @author Clinton Begin
  */
 public class PooledDataSourceFactory extends UnpooledDataSourceFactory {
 
+  /**
+   * 属性的设置与非池化的一致，除了这个方法的区别
+   */
   public PooledDataSourceFactory() {
     this.dataSource = new PooledDataSource();
   }
