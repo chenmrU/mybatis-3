@@ -33,11 +33,22 @@ import org.apache.ibatis.cache.CacheException;
  * 
  * @author Eduardo Macarron
  *
+ *  阻塞的缓存类
+ *
  */
 public class BlockingCache implements Cache {
 
+  /**
+   * 阻塞等待超时时间
+   */
   private long timeout;
+  /**
+   * 被修饰的缓存
+   */
   private final Cache delegate;
+  /**
+   * 缓存键与 ReentrantLock对象的映射
+   */
   private final ConcurrentHashMap<Object, ReentrantLock> locks;
 
   public BlockingCache(Cache delegate) {
@@ -64,6 +75,12 @@ public class BlockingCache implements Cache {
     }
   }
 
+  /**
+   * 获取缓存
+   * 先加锁，再获取缓存，如果获取不到缓存，则阻塞，执行 putObject，再释放锁，这样其他线程获得缓存失败时，不会去重复添加缓存
+   * @param key The key
+   * @return
+   */
   @Override
   public Object getObject(Object key) {
     acquireLock(key);

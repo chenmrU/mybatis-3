@@ -22,13 +22,23 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * 支持打印日志的缓存类
  * @author Clinton Begin
  */
 public class LoggingCache implements Cache {
 
   private final Log log;
+  /**
+   * 装饰的cache对象
+   */
   private final Cache delegate;
+  /**
+   * 统计请求缓存的次数
+   */
   protected int requests = 0;
+  /**
+   * 命中缓存的次数
+   */
   protected int hits = 0;
 
   public LoggingCache(Cache delegate) {
@@ -53,8 +63,10 @@ public class LoggingCache implements Cache {
 
   @Override
   public Object getObject(Object key) {
+    // 请求次数 ++
     requests++;
     final Object value = delegate.getObject(key);
+    // 命中缓存，次数++
     if (value != null) {
       hits++;
     }
@@ -89,6 +101,10 @@ public class LoggingCache implements Cache {
     return delegate.equals(obj);
   }
 
+  /**
+   * 缓存命中率
+   * @return
+   */
   private double getHitRatio() {
     return (double) hits / (double) requests;
   }

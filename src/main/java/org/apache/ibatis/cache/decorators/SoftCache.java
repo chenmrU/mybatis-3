@@ -26,11 +26,17 @@ import org.apache.ibatis.cache.Cache;
 /**
  * Soft Reference cache decorator
  * Thanks to Dr. Heinz Kabutz for his guidance here.
- *
+ *  软引用缓存类（与WeakCache一致，只是 WeakReference 换成了 SoftReference）
  * @author Clinton Begin
  */
 public class SoftCache implements Cache {
+  /**
+   * 强引用的键的队列
+   */
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
+  /**
+   * 被GC回收的 weekEntry 的集合
+   */
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
   private final Cache delegate;
   private int numberOfHardLinks;
@@ -106,6 +112,9 @@ public class SoftCache implements Cache {
     return null;
   }
 
+  /**
+   * 移除已经被GC的键
+   */
   private void removeGarbageCollectedItems() {
     SoftEntry sv;
     while ((sv = (SoftEntry) queueOfGarbageCollectedEntries.poll()) != null) {

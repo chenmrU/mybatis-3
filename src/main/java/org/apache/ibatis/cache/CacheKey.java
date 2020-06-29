@@ -22,12 +22,14 @@ import java.util.List;
 import org.apache.ibatis.reflection.ArrayUtil;
 
 /**
+ * 计算缓存键的类
  * @author Clinton Begin
  */
 public class CacheKey implements Cloneable, Serializable {
 
   private static final long serialVersionUID = 1146682552656046210L;
 
+  // 空缓存键
   public static final CacheKey NULL_CACHE_KEY = new NullCacheKey();
 
   private static final int DEFAULT_MULTIPLYER = 37;

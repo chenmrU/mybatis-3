@@ -36,6 +36,8 @@ import java.util.concurrent.locks.ReadWriteLock;
  * }
  * </pre>
  *
+ * 缓存容器接口
+ *
  * @author Clinton Begin
  */
 
