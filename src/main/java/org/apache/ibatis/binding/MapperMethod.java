@@ -50,7 +50,7 @@ public class MapperMethod {
    */
   private final SqlCommand command;
   /**
-   * mthod
+   * method
    */
   private final MethodSignature method;
 
