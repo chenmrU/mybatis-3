@@ -50,6 +50,13 @@ public class DefaultVFS extends VFS {
     return true;
   }
 
+  /**
+   * 递归列出所有资源
+   * @param url The URL that identifies the resource to list.
+   * @param path
+   * @return
+   * @throws IOException
+   */
   @Override
   public List<String> list(URL url, String path) throws IOException {
     InputStream is = null;
@@ -58,18 +65,21 @@ public class DefaultVFS extends VFS {
 
       // First, try to find the URL of a JAR file containing the requested resource. If a JAR
       // file is found, then we'll list child resources by reading the JAR.
+      // 如果 url 指向的是 jar resource，则返回 jarUrl
       URL jarUrl = findJarForResource(url);
       if (jarUrl != null) {
         is = jarUrl.openStream();
         if (log.isDebugEnabled()) {
           log.debug("Listing " + url);
         }
+        // 遍历 jar resource
         resources = listResources(new JarInputStream(is), path);
       }
       else {
         List<String> children = new ArrayList<String>();
         try {
           if (isJar(url)) {
+            // 如果是 jarUrl
             // Some versions of JBoss VFS might give a JAR stream even if the resource
             // referenced by the URL isn't actually a JAR
             is = url.openStream();
@@ -94,6 +104,7 @@ public class DefaultVFS extends VFS {
              * the class loader as a child of the current resource. If any line fails
              * then we assume the current resource is not a directory.
              */
+            // 获得路径下的所有资源
             is = url.openStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             List<String> lines = new ArrayList<String>();
@@ -140,12 +151,14 @@ public class DefaultVFS extends VFS {
         }
 
         // The URL prefix to use when recursively listing child resources
+        // 计算 prefix
         String prefix = url.toExternalForm();
         if (!prefix.endsWith("/")) {
           prefix = prefix + "/";
         }
 
         // Iterate over immediate children, adding files and recursing into directories
+        // 遍历子路径
         for (String child : children) {
           String resourcePath = path + "/" + child;
           resources.add(resourcePath);

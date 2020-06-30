@@ -54,6 +54,8 @@ import org.apache.ibatis.logging.LogFactory;
  * Collection&lt;ActionBean&gt; beans = resolver.getClasses();
  * </pre>
  *
+ * 解析器工具类，用于获得指定目录符合条件的类们。
+ *
  * @author Tim Fennell
  */
 public class ResolverUtil<T> {

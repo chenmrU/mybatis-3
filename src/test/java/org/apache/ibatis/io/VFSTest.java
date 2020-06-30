@@ -18,6 +18,8 @@ package org.apache.ibatis.io;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
+
 /**
  * Unit test for VFS getInstance method in multi-thread environment
  * 
@@ -28,6 +30,8 @@ public class VFSTest {
   @Test
   public void getInstanceShouldNotBeNull() throws Exception {
     VFS vsf = VFS.getInstance();
+    List<String> strings = vsf.list("test");
+    System.out.println(strings);
     Assert.assertNotNull(vsf);
   }
 
