@@ -45,11 +45,19 @@ import java.util.*;
  */
 public class MapperMethod {
 
+  /**
+   * sql
+   */
   private final SqlCommand command;
+  /**
+   * mthod
+   */
   private final MethodSignature method;
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
+    // 创建 sqlCommand
     this.command = new SqlCommand(config, mapperInterface, method);
+    // method 签名
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
@@ -253,6 +261,7 @@ public class MapperMethod {
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName,
         Class<?> declaringClass, Configuration configuration) {
       String statementId = mapperInterface.getName() + "." + methodName;
+      // 从配置中查找对应的sql
       if (configuration.hasStatement(statementId)) {
         return configuration.getMappedStatement(statementId);
       } else if (mapperInterface.equals(declaringClass)) {

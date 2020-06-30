@@ -15,5 +15,6 @@
  */
 /**
  * Bings mapper interfaces with mapped statements
+ * 绑定 Mapper接口 和 sql
  */
 package org.apache.ibatis.binding;

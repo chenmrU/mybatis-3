@@ -36,6 +36,9 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private static final long serialVersionUID = -6424540398559729838L;
   private final SqlSession sqlSession;
   private final Class<T> mapperInterface;
+  /**
+   * 缓存 mthod，sql 映射关系
+   */
   private final Map<Method, MapperMethod> methodCache;
 
   public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethod> methodCache) {
@@ -47,9 +50,11 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // equals、hashcode。。。Object定义的方法，则直接调用
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else if (isDefaultMethod(method)) {
+        // 处理 jdk8，接口上的 default方法
         return invokeDefaultMethod(proxy, method, args);
       }
     } catch (Throwable t) {
@@ -62,6 +67,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private MapperMethod cachedMapperMethod(Method method) {
     MapperMethod mapperMethod = methodCache.get(method);
     if (mapperMethod == null) {
+      // 创建 mapperMehod 对象，里面包含 sql
       mapperMethod = new MapperMethod(mapperInterface, method, sqlSession.getConfiguration());
       methodCache.put(method, mapperMethod);
     }
@@ -71,12 +77,15 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @UsesJava7
   private Object invokeDefaultMethod(Object proxy, Method method, Object[] args)
       throws Throwable {
+    // 获取 Class 构造器
     final Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class
         .getDeclaredConstructor(Class.class, int.class);
     if (!constructor.isAccessible()) {
       constructor.setAccessible(true);
     }
+    // 获取 method 对应的类
     final Class<?> declaringClass = method.getDeclaringClass();
+    // 调用 method
     return constructor
         .newInstance(declaringClass,
             MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED

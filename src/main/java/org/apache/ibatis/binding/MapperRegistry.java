@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Mapper接口注册表
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
@@ -47,6 +48,7 @@ public class MapperRegistry {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
     try {
+      // 返回 mapperProxy
       return mapperProxyFactory.newInstance(sqlSession);
     } catch (Exception e) {
       throw new BindingException("Error getting mapper instance. Cause: " + e, e);
@@ -64,6 +66,8 @@ public class MapperRegistry {
       }
       boolean loadCompleted = false;
       try {
+        // key: mapperType
+        // value ： MapperProxyFactory，用来获取一个 MapperProxy
         knownMappers.put(type, new MapperProxyFactory<T>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
@@ -87,6 +91,7 @@ public class MapperRegistry {
   }
 
   /**
+   * 遍历 package，将实现了 superType 的类注册进来
    * @since 3.2.2
    */
   public void addMappers(String packageName, Class<?> superType) {
