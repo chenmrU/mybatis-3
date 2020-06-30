@@ -18,6 +18,7 @@ package org.apache.ibatis.logging;
 import java.lang.reflect.Constructor;
 
 /**
+ * Log 工厂
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
@@ -31,6 +32,7 @@ public final class LogFactory {
   private static Constructor<? extends Log> logConstructor;
 
   static {
+    // 按顺序，根据类路径存在的 Log 实现，使用对应的 Log
     tryImplementation(new Runnable() {
       @Override
       public void run() {
@@ -85,6 +87,7 @@ public final class LogFactory {
     }
   }
 
+  // 使用自定义的 Log
   public static synchronized void useCustomLogging(Class<? extends Log> clazz) {
     setImplementation(clazz);
   }
