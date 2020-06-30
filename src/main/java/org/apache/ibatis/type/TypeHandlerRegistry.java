@@ -49,16 +49,33 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.reflection.Jdk;
 
 /**
+ * TypeHandler 注册表
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
 public final class TypeHandlerRegistry {
 
+  /**
+   * JdbcType TypeHandler
+   */
   private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP = new EnumMap<JdbcType, TypeHandler<?>>(JdbcType.class);
+  /**
+   * JavaType -> JdbcType -> TypeHandler
+   */
   private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP = new ConcurrentHashMap<Type, Map<JdbcType, TypeHandler<?>>>();
+  /**
+   * JavaType 不存在 TypeHandler 的集合
+   */
   private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
+
+  /**
+   * 所有 TypeHandler 集合
+   */
   private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<Class<?>, TypeHandler<?>>();
 
+  /**
+   * JdbcType 不存在 TypeHandler 的集合
+   */
   private static final Map<JdbcType, TypeHandler<?>> NULL_TYPE_HANDLER_MAP = Collections.emptyMap();
 
   private Class<? extends TypeHandler> defaultEnumTypeHandler = EnumTypeHandler.class;

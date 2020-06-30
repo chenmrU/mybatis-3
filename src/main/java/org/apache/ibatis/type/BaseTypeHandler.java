@@ -24,6 +24,7 @@ import org.apache.ibatis.executor.result.ResultMapException;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * TypeHandler 基础抽象类
  * @author Clinton Begin
  * @author Simone Tripodi
  */
@@ -46,6 +47,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
   @Override
   public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
     if (parameter == null) {
+      // 参数为空，设置为 null 类型
       if (jdbcType == null) {
         throw new TypeException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
       }
@@ -57,6 +59,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
                 "Cause: " + e, e);
       }
     } else {
+      // 参数不为空
       try {
         setNonNullParameter(ps, i, parameter, jdbcType);
       } catch (Exception e) {
