@@ -145,6 +145,8 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
     Properties props = context.getChildrenAsProperties();
     // Check that all settings are known to the configuration class
+    // 校验每一个属性在 Configuration 中有对应的 setting 方法
+    // 没有则抛出异常
     MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
     for (Object key : props.keySet()) {
       if (!metaConfig.hasSetter(String.valueOf(key))) {
@@ -172,9 +174,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
+          // <package name="domain.blog"/>
           String typeAliasPackage = child.getStringAttribute("name");
           configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
         } else {
+          // <typeAlias alias="Post" type="domain.blog.Post"/>
           String alias = child.getStringAttribute("alias");
           String type = child.getStringAttribute("type");
           try {
@@ -192,6 +196,9 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
   }
 
+  //  <plugin interceptor="org.mybatis.example.ExamplePlugin">
+  //    <property name="someProperty" value="100"/>
+  //  </plugin>
   private void pluginElement(XNode parent) throws Exception {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
@@ -290,6 +297,19 @@ public class XMLConfigBuilder extends BaseBuilder {
     configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
   }
 
+  //<environments default="development">
+  //  <environment id="development">
+  //    <transactionManager type="JDBC">
+  //      <property name="..." value="..."/>
+  //    </transactionManager>
+  //    <dataSource type="POOLED">
+  //      <property name="driver" value="${driver}"/>
+  //      <property name="url" value="${url}"/>
+  //      <property name="username" value="${username}"/>
+  //      <property name="password" value="${password}"/>
+  //    </dataSource>
+  //  </environment>
+  //</environments>
   private void environmentsElement(XNode context) throws Exception {
     if (context != null) {
       if (environment == null) {
@@ -355,9 +375,15 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
+          // <typeHandlers>
+          //  <package name="org.mybatis.example"/>
+          // </typeHandlers>
           String typeHandlerPackage = child.getStringAttribute("name");
           typeHandlerRegistry.register(typeHandlerPackage);
         } else {
+          // <typeHandlers>
+          //  <typeHandler handler="org.mybatis.example.ExampleTypeHandler"/>
+          // </typeHandlers>
           String javaTypeName = child.getStringAttribute("javaType");
           String jdbcTypeName = child.getStringAttribute("jdbcType");
           String handlerTypeName = child.getStringAttribute("handler");
@@ -382,6 +408,9 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (parent != null) {
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
+          // <mappers>
+          //  <package name="org.mybatis.builder"/>
+          // </mappers>
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
         } else {
@@ -389,17 +418,36 @@ public class XMLConfigBuilder extends BaseBuilder {
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
           if (resource != null && url == null && mapperClass == null) {
+            // <mappers>
+            //  <mapper resource="org/mybatis/builder/AuthorMapper.xml"/>
+            //  <mapper resource="org/mybatis/builder/BlogMapper.xml"/>
+            //  <mapper resource="org/mybatis/builder/PostMapper.xml"/>
+            // </mappers>
             ErrorContext.instance().resource(resource);
             InputStream inputStream = Resources.getResourceAsStream(resource);
+            // 解析 mapper.xml 文件
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
             mapperParser.parse();
           } else if (resource == null && url != null && mapperClass == null) {
+
+            // <mappers>
+            //  <mapper url="file:///var/mappers/AuthorMapper.xml"/>
+            //  <mapper url="file:///var/mappers/BlogMapper.xml"/>
+            //  <mapper url="file:///var/mappers/PostMapper.xml"/>
+            //  </mappers>
             ErrorContext.instance().resource(url);
             InputStream inputStream = Resources.getUrlAsStream(url);
+            // 解析 mapper.xml 文件
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
             mapperParser.parse();
           } else if (resource == null && url == null && mapperClass != null) {
+            // <mappers>
+            //  <mapper class="org.mybatis.builder.AuthorMapper"/>
+            //  <mapper class="org.mybatis.builder.BlogMapper"/>
+            //  <mapper class="org.mybatis.builder.PostMapper"/>
+            // </mappers>
             Class<?> mapperInterface = Resources.classForName(mapperClass);
+            // 添加 mapper 接口
             configuration.addMapper(mapperInterface);
           } else {
             throw new BuilderException("A mapper element may only specify a url, resource or class, but not more than one.");
