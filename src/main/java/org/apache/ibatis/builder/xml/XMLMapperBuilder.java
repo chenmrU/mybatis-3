@@ -48,6 +48,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
+ * mapper.xml 配置解析
  * @author Clinton Begin
  */
 public class XMLMapperBuilder extends BaseBuilder {
@@ -88,14 +89,21 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    // 判断当前mapper是否已经加载过了
     if (!configuration.isResourceLoaded(resource)) {
+      // 解析 mapper 节点
       configurationElement(parser.evalNode("/mapper"));
+      // 标记该 mapper 已经被解析过
       configuration.addLoadedResource(resource);
+      // 绑定 Mapper
       bindMapperForNamespace();
     }
 
+    // 解析待定的 <resultMap> 节点
     parsePendingResultMaps();
+    // 解析待定的 <cache-ref> 节点
     parsePendingCacheRefs();
+    // 解析待定的 sql 语句节点 <select> <insert> <update>
     parsePendingStatements();
   }
 
@@ -110,10 +118,22 @@ public class XMLMapperBuilder extends BaseBuilder {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
       builderAssistant.setCurrentNamespace(namespace);
+      // <cache-ref namespace="com.someone.application.data.SomeMapper"/>
       cacheRefElement(context.evalNode("cache-ref"));
+      // <cache />
       cacheElement(context.evalNode("cache"));
+      // 已废弃
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+      // <resultMap id="userResultMap" type="User">
+      //  <id property="id" column="user_id" />
+      //  <result property="username" column="user_name"/>
+      //  <result property="password" column="hashed_password"/>
+      // </resultMap>
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+      // <sql id="someinclude">
+      //  from
+      //    <include refid="${include_target}"/>
+      //  </sql>
       sqlElement(context.evalNodes("/mapper/sql"));
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
@@ -184,6 +204,7 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  // <cache-ref namespace="com.someone.application.data.SomeMapper"/>
   private void cacheRefElement(XNode context) {
     if (context != null) {
       configuration.addCacheRef(builderAssistant.getCurrentNamespace(), context.getStringAttribute("namespace"));
@@ -191,17 +212,26 @@ public class XMLMapperBuilder extends BaseBuilder {
       try {
         cacheRefResolver.resolveCacheRef();
       } catch (IncompleteElementException e) {
+        // 解析失败，因为此处的指向的 cache 对象可能未初始化，则先调用：
         configuration.addIncompleteCacheRef(cacheRefResolver);
       }
     }
   }
 
+  // <cache
+  //  eviction="FIFO"
+  //  flushInterval="60000"
+  //  size="512"
+  //  readOnly="true"/>
   private void cacheElement(XNode context) throws Exception {
     if (context != null) {
+      // 缓存类型
       String type = context.getStringAttribute("type", "PERPETUAL");
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
+      // 缓存淘汰机制
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+      // 缓存属性
       Long flushInterval = context.getLongAttribute("flushInterval");
       Integer size = context.getIntAttribute("size");
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
@@ -238,6 +268,34 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  //<resultMap id="detailedBlogResultMap" type="Blog">
+  //  <constructor>
+  //    <idArg column="blog_id" javaType="int"/>
+  //  </constructor>
+  //  <result property="title" column="blog_title"/>
+  //  <association property="author" javaType="Author">
+  //    <id property="id" column="author_id"/>
+  //    <result property="username" column="author_username"/>
+  //    <result property="password" column="author_password"/>
+  //    <result property="email" column="author_email"/>
+  //    <result property="bio" column="author_bio"/>
+  //    <result property="favouriteSection" column="author_favourite_section"/>
+  //  </association>
+  //  <collection property="posts" ofType="Post">
+  //    <id property="id" column="post_id"/>
+  //    <result property="subject" column="post_subject"/>
+  //    <association property="author" javaType="Author"/>
+  //    <collection property="comments" ofType="Comment">
+  //      <id property="id" column="comment_id"/>
+  //    </collection>
+  //    <collection property="tags" ofType="Tag" >
+  //      <id property="id" column="tag_id"/>
+  //    </collection>
+  //    <discriminator javaType="int" column="draft">
+  //      <case value="1" resultType="DraftPost"/>
+  //    </discriminator>
+  //  </collection>
+  //</resultMap>
   private void resultMapElements(List<XNode> list) throws Exception {
     for (XNode resultMapNode : list) {
       try {
@@ -248,12 +306,70 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  // <resultMap id="detailedBlogResultMap" type="Blog">
+  //  <constructor>
+  //    <idArg column="blog_id" javaType="int"/>
+  //  </constructor>
+  //  <result property="title" column="blog_title"/>
+  //  <association property="author" javaType="Author">
+  //    <id property="id" column="author_id"/>
+  //    <result property="username" column="author_username"/>
+  //    <result property="password" column="author_password"/>
+  //    <result property="email" column="author_email"/>
+  //    <result property="bio" column="author_bio"/>
+  //    <result property="favouriteSection" column="author_favourite_section"/>
+  //  </association>
+  //  <collection property="posts" ofType="Post">
+  //    <id property="id" column="post_id"/>
+  //    <result property="subject" column="post_subject"/>
+  //    <association property="author" javaType="Author"/>
+  //    <collection property="comments" ofType="Comment">
+  //      <id property="id" column="comment_id"/>
+  //    </collection>
+  //    <collection property="tags" ofType="Tag" >
+  //      <id property="id" column="tag_id"/>
+  //    </collection>
+  //    <discriminator javaType="int" column="draft">
+  //      <case value="1" resultType="DraftPost"/>
+  //    </discriminator>
+  //  </collection>
+  //</resultMap>
   private ResultMap resultMapElement(XNode resultMapNode) throws Exception {
     return resultMapElement(resultMapNode, Collections.<ResultMapping> emptyList());
   }
 
+  // <resultMap id="detailedBlogResultMap" type="Blog">
+  //  <constructor>
+  //    <idArg column="blog_id" javaType="int"/>
+  //  </constructor>
+  //  <result property="title" column="blog_title"/>
+  //  <association property="author" javaType="Author">
+  //    <id property="id" column="author_id"/>
+  //    <result property="username" column="author_username"/>
+  //    <result property="password" column="author_password"/>
+  //    <result property="email" column="author_email"/>
+  //    <result property="bio" column="author_bio"/>
+  //    <result property="favouriteSection" column="author_favourite_section"/>
+  //  </association>
+  //  <collection property="posts" ofType="Post">
+  //    <id property="id" column="post_id"/>
+  //    <result property="subject" column="post_subject"/>
+  //    <association property="author" javaType="Author"/>
+  //    <collection property="comments" ofType="Comment">
+  //      <id property="id" column="comment_id"/>
+  //    </collection>
+  //    <collection property="tags" ofType="Tag" >
+  //      <id property="id" column="tag_id"/>
+  //    </collection>
+  //    <discriminator javaType="int" column="draft">
+  //      <case value="1" resultType="DraftPost"/>
+  //    </discriminator>
+  //  </collection>
+  //</resultMap>
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings) throws Exception {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
+
+    // <resultMap id="detailedBlogResultMap" type="Blog">
     String id = resultMapNode.getStringAttribute("id",
         resultMapNode.getValueBasedIdentifier());
     String type = resultMapNode.getStringAttribute("type",
@@ -266,11 +382,22 @@ public class XMLMapperBuilder extends BaseBuilder {
     Discriminator discriminator = null;
     List<ResultMapping> resultMappings = new ArrayList<ResultMapping>();
     resultMappings.addAll(additionalResultMappings);
+
+    //  <id property="id" column="user_id" />
+    //  <result property="username" column="user_name"/>
+    //  <result property="password" column="hashed_password"/>
     List<XNode> resultChildren = resultMapNode.getChildren();
     for (XNode resultChild : resultChildren) {
       if ("constructor".equals(resultChild.getName())) {
+        // <constructor>
+        //   <idArg column="blog_id" javaType="int"/>
+        //  </constructor>
         processConstructorElement(resultChild, typeClass, resultMappings);
       } else if ("discriminator".equals(resultChild.getName())) {
+        // 使用结果值，来决定使用哪个 resultMap
+        //    <discriminator javaType="int" column="draft">
+        //      <case value="1" resultType="DraftPost"/>
+        //    </discriminator>
         discriminator = processDiscriminatorElement(resultChild, typeClass, resultMappings);
       } else {
         List<ResultFlag> flags = new ArrayList<ResultFlag>();
@@ -289,6 +416,9 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  // <constructor>
+  //   <idArg column="blog_id" javaType="int"/>
+  //  </constructor>
   private void processConstructorElement(XNode resultChild, Class<?> resultType, List<ResultMapping> resultMappings) throws Exception {
     List<XNode> argChildren = resultChild.getChildren();
     for (XNode argChild : argChildren) {
@@ -357,6 +487,9 @@ public class XMLMapperBuilder extends BaseBuilder {
     return true;
   }
 
+  // <constructor>
+  //   <idArg column="blog_id" javaType="int"/>
+  //  </constructor>
   private ResultMapping buildResultMappingFromContext(XNode context, Class<?> resultType, List<ResultFlag> flags) throws Exception {
     String property;
     if (flags.contains(ResultFlag.CONSTRUCTOR)) {
@@ -405,11 +538,14 @@ public class XMLMapperBuilder extends BaseBuilder {
         //ignore, bound type is not required
       }
       if (boundType != null) {
+        // 不存在该 Mapper 接口，则进行添加
         if (!configuration.hasMapper(boundType)) {
           // Spring may not know the real resource name so we set a flag
           // to prevent loading again this resource from the mapper interface
           // look at MapperAnnotationBuilder#loadXmlResource
+          // 标记 namespace 已经添加，避免 MapperAnnotationBuilder#loadXmlResource(...) 重复加载
           configuration.addLoadedResource("namespace:" + namespace);
+          //  添加到 configuration 中
           configuration.addMapper(boundType);
         }
       }
