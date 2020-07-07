@@ -135,6 +135,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       //    <include refid="${include_target}"/>
       //  </sql>
       sqlElement(context.evalNodes("/mapper/sql"));
+      // select|insert|update|delete
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);

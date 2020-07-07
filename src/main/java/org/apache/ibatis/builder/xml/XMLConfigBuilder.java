@@ -426,6 +426,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             ErrorContext.instance().resource(resource);
             InputStream inputStream = Resources.getResourceAsStream(resource);
             // 解析 mapper.xml 文件
+            // configuration.getSqlFragments() 由于这个，所以直接 sqlFragments.put(), 会被添加到 configuration
             XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
             mapperParser.parse();
           } else if (resource == null && url != null && mapperClass == null) {
