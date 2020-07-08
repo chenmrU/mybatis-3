@@ -32,11 +32,13 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
+ * PreparedStatement
  * @author Clinton Begin
  */
 public class PreparedStatementHandler extends BaseStatementHandler {
 
-  public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
+  public PreparedStatementHandler(Executor executor, MappedStatement mappedStatement,
+                                  Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     super(executor, mappedStatement, parameter, rowBounds, resultHandler, boundSql);
   }
 

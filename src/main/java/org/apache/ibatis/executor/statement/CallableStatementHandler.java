@@ -35,6 +35,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.JdbcType;
 
 /**
+ * CallableStatement 存储过程相关
  * @author Clinton Begin
  */
 public class CallableStatementHandler extends BaseStatementHandler {

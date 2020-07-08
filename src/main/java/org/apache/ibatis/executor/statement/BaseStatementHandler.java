@@ -59,14 +59,19 @@ public abstract class BaseStatementHandler implements StatementHandler {
     this.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
     this.objectFactory = configuration.getObjectFactory();
 
+    // 如果 boundSql 为空，一般是写操作，则先获得自增主键，然后再创建 boundSql
     if (boundSql == null) { // issue #435, get the key before calculating the statement
+      // 获得自增主键
       generateKeys(parameterObject);
+      // 创建 BoundSql 对象
       boundSql = mappedStatement.getBoundSql(parameterObject);
     }
 
     this.boundSql = boundSql;
 
+    // 创建 parameterHandler
     this.parameterHandler = configuration.newParameterHandler(mappedStatement, parameterObject, boundSql);
+    // 创建 resultSetHandler
     this.resultSetHandler = configuration.newResultSetHandler(executor, mappedStatement, rowBounds, parameterHandler, resultHandler, boundSql);
   }
 
@@ -85,8 +90,11 @@ public abstract class BaseStatementHandler implements StatementHandler {
     ErrorContext.instance().sql(boundSql.getSql());
     Statement statement = null;
     try {
+      // 创建 statement 对象
       statement = instantiateStatement(connection);
+      // 设置超时时间
       setStatementTimeout(statement, transactionTimeout);
+      // 设置 fetchSize
       setFetchSize(statement);
       return statement;
     } catch (SQLException e) {
@@ -136,8 +144,10 @@ public abstract class BaseStatementHandler implements StatementHandler {
   }
 
   protected void generateKeys(Object parameter) {
+    // 创建 keyGen 对象
     KeyGenerator keyGenerator = mappedStatement.getKeyGenerator();
     ErrorContext.instance().store();
+    // 生成主键到 parameter 中
     keyGenerator.processBefore(executor, mappedStatement, null, parameter);
     ErrorContext.instance().recall();
   }
