@@ -36,6 +36,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * 适用Mysql、H2
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -60,9 +61,11 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
   public void processBatch(MappedStatement ms, Statement stmt, Collection<Object> parameters) {
     ResultSet rs = null;
     try {
+      // 获得返回的主键值
       rs = stmt.getGeneratedKeys();
       final Configuration configuration = ms.getConfiguration();
       final TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+      // 获取主键属性的配置。如果为空，则说明不需要主键，直接返回
       final String[] keyProperties = ms.getKeyProperties();
       final ResultSetMetaData rsmd = rs.getMetaData();
       TypeHandler<?>[] typeHandlers = null;
@@ -76,6 +79,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
           if (typeHandlers == null) {
             typeHandlers = getTypeHandlers(typeHandlerRegistry, metaParam, keyProperties, rsmd);
           }
+          // 设置主键到参数
           populateKeys(rs, metaParam, keyProperties, typeHandlers);
         }
       }
