@@ -36,14 +36,24 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.type.UnknownTypeHandler;
 
 /**
+ * ResultSet 包装器
  * @author Iwao AVE!
  */
 public class ResultSetWrapper {
 
   private final ResultSet resultSet;
   private final TypeHandlerRegistry typeHandlerRegistry;
+  /**
+   * 字段名称数组
+   */
   private final List<String> columnNames = new ArrayList<String>();
+  /**
+   * 字段 Java Type 数组
+   */
   private final List<String> classNames = new ArrayList<String>();
+  /**
+   * 字段 Jdbc Type 数组
+   */
   private final List<JdbcType> jdbcTypes = new ArrayList<JdbcType>();
   private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap = new HashMap<String, Map<Class<?>, TypeHandler<?>>>();
   private final Map<String, List<String>> mappedColumnNamesMap = new HashMap<String, List<String>>();
@@ -55,6 +65,7 @@ public class ResultSetWrapper {
     this.resultSet = rs;
     final ResultSetMetaData metaData = rs.getMetaData();
     final int columnCount = metaData.getColumnCount();
+    // 遍历获取 columnNames、jdbcTypes、classNames
     for (int i = 1; i <= columnCount; i++) {
       columnNames.add(configuration.isUseColumnLabel() ? metaData.getColumnLabel(i) : metaData.getColumnName(i));
       jdbcTypes.add(JdbcType.forCode(metaData.getColumnType(i)));
@@ -137,9 +148,16 @@ public class ResultSetWrapper {
     return null;
   }
 
+  /**
+   * 初始化有 mapperd 和 无mapperd 的参数数组
+   * @param resultMap
+   * @param columnPrefix
+   * @throws SQLException
+   */
   private void loadMappedAndUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
     List<String> mappedColumnNames = new ArrayList<String>();
     List<String> unmappedColumnNames = new ArrayList<String>();
+    // <1> 将 columnPrefix 转换成大写，并拼接到 resultMap.mappedColumns 属性上
     final String upperColumnPrefix = columnPrefix == null ? null : columnPrefix.toUpperCase(Locale.ENGLISH);
     final Set<String> mappedColumns = prependPrefixes(resultMap.getMappedColumns(), upperColumnPrefix);
     for (String columnName : columnNames) {
