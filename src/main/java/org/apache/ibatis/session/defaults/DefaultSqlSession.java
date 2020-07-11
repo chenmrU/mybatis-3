@@ -51,8 +51,17 @@ public class DefaultSqlSession implements SqlSession {
   private final Configuration configuration;
   private final Executor executor;
 
+  /**
+   * 是否自动提交
+   */
   private final boolean autoCommit;
+  /**
+   * 是否发生数据变更
+   */
   private boolean dirty;
+  /**
+   * Cursor数组
+   */
   private List<Cursor<?>> cursorList;
 
   public DefaultSqlSession(Configuration configuration, Executor executor, boolean autoCommit) {
@@ -96,12 +105,16 @@ public class DefaultSqlSession implements SqlSession {
 
   @Override
   public <K, V> Map<K, V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowBounds) {
+    // 执行查询
     final List<? extends V> list = selectList(statement, parameter, rowBounds);
+    // 创建 DefaultMapResultHandler 对象
     final DefaultMapResultHandler<K, V> mapResultHandler = new DefaultMapResultHandler<K, V>(mapKey,
         configuration.getObjectFactory(), configuration.getObjectWrapperFactory(), configuration.getReflectorFactory());
     final DefaultResultContext<V> context = new DefaultResultContext<V>();
+    // 遍历查询结果
     for (V o : list) {
       context.nextResultObject(o);
+      // 将结果聚合成 map
       mapResultHandler.handleResult(context);
     }
     return mapResultHandler.getMappedResults();

@@ -717,6 +717,7 @@ public class Configuration {
   }
 
   public MappedStatement getMappedStatement(String id, boolean validateIncompleteStatements) {
+    // 校验，保证所有 mappedStatement 都构造完毕
     if (validateIncompleteStatements) {
       buildAllStatements();
     }
