@@ -1,4 +1,6 @@
-# 基础模块
+# Mybatis 源码中文注释
+
+## 基础模块
 * parsing
 * reflection
 * exceptions
@@ -11,7 +13,7 @@
 * annotations
 * binding
 
-# 核心模块
+## 核心模块
 * executor
 * plugin
 * session
@@ -19,5 +21,5 @@
 * cursor
 * mapping
 
-# 对外接口
+## 对外接口
 * SqlSession
